@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+<html>
+  <head>
+    <script src="https://www.gstatic.com/firebasejs/7.21.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.21.0/firebase-auth.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+    <script>
+      // Inicializar Firebase
+      var firebaseConfig = {
+        apiKey: "SUA_API_KEY",
+        authDomain: "SEU_PROJETO.firebaseapp.com",
+        databaseURL: "https://SEU_PROJETO.firebaseio.com",
+        projectId: "SEU_PROJETO",
+        storageBucket: "SEU_PROJETO.appspot.com",
+        messagingSenderId: "SEU_ID",
+        appId: "SUA_APP_ID"
+      };
+      firebase.initializeApp(firebaseConfig);
+    </script>
+  </head>
+  <body>
+    <h1>Autenticação de Usuário com Firebase</h1>
+
+<!-- Botão para abrir a janela modal -->
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalLogin">
+  ACESSAR CONTA
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="modalLogin" tabindex="-1" role="dialog" aria-labelledby="modalLoginTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalLoginTitle">Entre ou cadastre-se para acessar!</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div>
+          <h2>Login</h2>
+          <form id="form-login">
+            <label for="email-login">Email:</label>
+            <input type="email" id="email-login">
+            <br>
+            <label for="senha-login">Senha:</label>
+            <input type="password" id="senha-login">
+            <br>
+            <button type="submit">Login</button>
+          </form>
+          <p id="mensagem-login"></p>
+        </div>
+        <br/>
+        <div>
+          <h2>Cadastro</h2>
+          <form id="form-cadastro">
+            <label for="email-cadastro">Email:</label>
+            <input type="email" id="email-cadastro">
+            <br>
+            <label for="senha-cadastro">Senha:</label>
+            <input type="password" id="senha-cadastro">
+            <br>
+            <button type="submit">Cadastrar</button>
+          </form>
+          <p id="mensagem-cadastro"></p>
+        </div>
+        <!-- Conteúdo do formulário de login aqui -->
+        
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+    <script>
+      // Validação de Cadastro
+      var formCadastro = document.getElementById("form-cadastro");
+      formCadastro.addEventListener("submit", function(event) {
+        event.preventDefault();
+        var email = document.getElementById("email-cadastro").value;
+        var senha = document.getElementById("senha-cadastro").value;
+
+        // Verifica se o email está em um formato válido
+        if (!validarEmail(email)) {
+          document.getElementById("mensagem-cadastro").innerHTML =
+            "Email inválido";
+          return;
+        }
+
+        // Verifica se a senha tem pelo menos 6 caracteres
+        if (senha.length < 6) {
+          document.getElementById("mensagem-cadastro").innerHTML =
+            "A senha deve ter pelo menos 6 caracteres";
+          return;
+        }
+
+        firebase
+          .auth()
+          .createUserWithEmailAndPassword(email, senha)
+          .then(function() {
+            document.getElementById("mensagem-cadastro").innerHTML =
+              "Usuário cadastrado com sucesso";
+          })
+          .catch(function(error) {
+            document.getElementById("mensagem-cadastro").innerHTML =
+              "Erro ao cadastrar usuário: " + error.message;
+          });
+      });
+
+      // Validação de Login
+      var formLogin = document.getElementById("form-login");
+      formLogin.addEventListener("submit", function(event) {
+        event.preventDefault();
+        var email = document.getElementById("email-login").value;
+        var senha = document.getElementById("senha-login").value;
+
+        // Verifica se o email está em um formato válido
+        if (!validarEmail(email)) {
+          document.getElementById("mensagem-login").innerHTML =
+            "Email inválido";
+          return;
+        }
+
+        firebase
+          .auth()
+          .signInWithEmailAndPassword(email, senha)
+          .then(function() {
+            document.getElementById("mensagem-login").innerHTML =
+              "Login realizado com sucesso";
+          })
+          .catch(function(error) {
+            document.getElementById("mensagem-login").innerHTML =
+              "Erro ao realizar login: " + error.message;
+          });
+      });
+
+      // Função para validar email
+      function validarEmail(email) {
+        var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(String(email).toLowerCase());
+      }
+    </script>
+  </body>
+</html>
+
